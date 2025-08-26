@@ -1,0 +1,4 @@
+﻿pydantic>=2
+pandas>=2
+python-dotenv>=1
+rich>=13
