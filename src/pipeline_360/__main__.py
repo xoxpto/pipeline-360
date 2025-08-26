@@ -1,7 +1,4 @@
-﻿from rich import print
-
-def main():
-    print("[bold green]Pipeline 360[/] pronto a arrancar!")
+from .cli import main
 
 if __name__ == "__main__":
     main()
