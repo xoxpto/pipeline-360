@@ -1,0 +1,7 @@
+2025-08-26 13:45:16,862 | INFO | diagnostic | Teste: escrever no ficheiro de log
+2025-08-26 13:45:31,646 | INFO | pipeline_360.etl.pipeline | Ingest iniciado
+2025-08-26 13:45:31,672 | INFO | pipeline_360.etl.pipeline | Ingest concluído
+2025-08-26 13:45:31,672 | INFO | pipeline_360.etl.pipeline | Transform iniciado
+2025-08-26 13:45:31,690 | INFO | pipeline_360.etl.pipeline | Transform concluído
+2025-08-26 13:45:31,690 | INFO | pipeline_360.etl.pipeline | Export iniciado
+2025-08-26 13:45:31,703 | INFO | pipeline_360.etl.pipeline | Export concluído

@@ -1,4 +1,5 @@
 ﻿from pathlib import Path
+import pandas as pd
 from ..config import DATA_DIR
 
 RAW = DATA_DIR / "raw"
@@ -8,20 +9,32 @@ OUT = DATA_DIR / "output"
 for d in (RAW, PROC, OUT):
     d.mkdir(parents=True, exist_ok=True)
 
+CSV_IN = RAW / "exemplo.csv"
+CSV_PROC = PROC / "exemplo_proc.csv"
+CSV_OUT = OUT / "resultado.csv"
+
+def _seed_example_csv():
+    if not CSV_IN.exists():
+        df = pd.DataFrame(
+            {
+                "id": [1, 2, 3, 4],
+                "categoria": ["A", "A", "B", "B"],
+                "valor": [10, 15, 7, 20],
+            }
+        )
+        df.to_csv(CSV_IN, index=False)
+
 def ingest():
-    # TODO: substitui por ingestão real (APIs/CSV/etc.)
-    (RAW / "exemplo.txt").write_text("dados brutos", encoding="utf-8")
+    _seed_example_csv()
 
 def transform():
-    # TODO: substitui por transform real (pandas, validação, etc.)
-    src = RAW / "exemplo.txt"
-    dst = PROC / "exemplo_proc.txt"
-    if src.exists():
-        dst.write_text(src.read_text(encoding="utf-8").upper(), encoding="utf-8")
+    if CSV_IN.exists():
+        df = pd.read_csv(CSV_IN)
+        df = df[df["valor"] > 8]
+        agg = df.groupby("categoria", as_index=False)["valor"].sum().rename(columns={"valor": "soma_valor"})
+        agg.to_csv(CSV_PROC, index=False)
 
 def export():
-    # TODO: substitui por export real (CSV final, DB, parquet, etc.)
-    src = PROC / "exemplo_proc.txt"
-    dst = OUT / "resultado.txt"
-    if src.exists():
-        dst.write_text(src.read_text(encoding="utf-8"), encoding="utf-8")
+    if CSV_PROC.exists():
+        df = pd.read_csv(CSV_PROC)
+        df.to_csv(CSV_OUT, index=False)
