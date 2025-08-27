@@ -9,7 +9,10 @@ def test_cli_run_with_flags_and_clean(tmp_path):
     log_file = tmp_path / "logs" / "x.log"
 
     # run all with overrides
-    res = runner.invoke(app, ["--data-dir", str(data_dir), "--log-file", str(log_file), "--log-level", "DEBUG", "run", "--stage", "all"])
+    res = runner.invoke(
+        app,
+        ["--data-dir", str(data_dir), "--log-file", str(log_file), "--log-level", "DEBUG", "run", "--stage", "all"]
+    )
     assert res.exit_code == 0, res.stdout
 
     # artefactos criados

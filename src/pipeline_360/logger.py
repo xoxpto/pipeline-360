@@ -15,6 +15,7 @@ def setup_logging(level: str | None = None, log_file: Path | None = None):
     file = Path(log_file or CFG_FILE)
 
     root = logging.getLogger()
+
     # limpar handlers antigos
     for h in list(root.handlers):
         root.removeHandler(h)
@@ -38,7 +39,6 @@ def setup_logging(level: str | None = None, log_file: Path | None = None):
     _configured = True
 
 def get_logger(name: str) -> logging.Logger:
-    # garante pelo menos configuração default
     if not _configured:
         setup_logging()
     return logging.getLogger(name)

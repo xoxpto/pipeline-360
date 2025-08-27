@@ -1,5 +1,4 @@
 ﻿from pathlib import Path
-import os
 from pipeline_360.logger import setup_logging, get_logger
 
 def test_logger_file_created(tmp_path, monkeypatch):
