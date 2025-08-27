@@ -4,3 +4,14 @@
 
 Projeto base inicial.
 
+## CLI
+
+```bash
+pipeline-360 --help
+pipeline-360 hello --name "André"
+
+# overrides de config
+pipeline-360 --data-dir data_dev --log-level DEBUG --log-file logs/dev.log run --stage all
+
+# limpar artefactos
+pipeline-360 clean --yes

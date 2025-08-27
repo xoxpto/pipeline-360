@@ -1,36 +1,44 @@
 ﻿import logging
 from logging.handlers import RotatingFileHandler
-from .config import LOG_LEVEL, LOG_FILE
+from pathlib import Path
+from .config import LOG_LEVEL as CFG_LEVEL, LOG_FILE as CFG_FILE
 
-_configured = False  # garante configuração única por processo
+_configured = False
 
-def _ensure_root_handlers():
+def setup_logging(level: str | None = None, log_file: Path | None = None):
+    """
+    (Re)configura o root logger com consola + ficheiro rotativo.
+    Pode ser chamado várias vezes (limpa handlers).
+    """
     global _configured
-    if _configured:
-        return
-    level = getattr(logging, LOG_LEVEL.upper(), logging.INFO)
-    logging.getLogger().setLevel(level)
+    lvl = getattr(logging, (level or CFG_LEVEL).upper(), logging.INFO)
+    file = Path(log_file or CFG_FILE)
 
+    root = logging.getLogger()
+    # limpar handlers antigos
+    for h in list(root.handlers):
+        root.removeHandler(h)
+        try:
+            h.close()
+        except Exception:
+            pass
+
+    root.setLevel(lvl)
     fmt = logging.Formatter("%(asctime)s | %(levelname)s | %(name)s | %(message)s")
 
-    # Consola (apenas se não existir já)
-    if not any(isinstance(h, logging.StreamHandler) for h in logging.getLogger().handlers):
-        ch = logging.StreamHandler()
-        ch.setFormatter(fmt)
-        logging.getLogger().addHandler(ch)
+    ch = logging.StreamHandler()
+    ch.setFormatter(fmt)
+    root.addHandler(ch)
 
-    # Ficheiro rotativo (garantir sempre)
-    LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
-    if not any(isinstance(h, RotatingFileHandler) for h in logging.getLogger().handlers):
-        fh = RotatingFileHandler(LOG_FILE, maxBytes=1_000_000, backupCount=3, encoding="utf-8")
-        fh.setFormatter(fmt)
-        logging.getLogger().addHandler(fh)
+    file.parent.mkdir(parents=True, exist_ok=True)
+    fh = RotatingFileHandler(file, maxBytes=1_000_000, backupCount=3, encoding="utf-8")
+    fh.setFormatter(fmt)
+    root.addHandler(fh)
 
     _configured = True
 
 def get_logger(name: str) -> logging.Logger:
-    _ensure_root_handlers()
-    # usar logger de módulo; as mensagens propagam para o root (file + console)
-    logger = logging.getLogger(name)
-    logger.propagate = True
-    return logger
+    # garante pelo menos configuração default
+    if not _configured:
+        setup_logging()
+    return logging.getLogger(name)

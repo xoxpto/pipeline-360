@@ -5,3 +5,17 @@
 2025-08-26 13:45:31,690 | INFO | pipeline_360.etl.pipeline | Transform concluído
 2025-08-26 13:45:31,690 | INFO | pipeline_360.etl.pipeline | Export iniciado
 2025-08-26 13:45:31,703 | INFO | pipeline_360.etl.pipeline | Export concluído
+2025-08-26 16:10:38,178 | INFO | pipeline_360.cli | hello chamado
+2025-08-26 16:10:38,259 | INFO | pipeline_360.etl.pipeline | Ingest iniciado
+2025-08-26 16:10:38,260 | INFO | pipeline_360.etl.pipeline | Ingest concluído
+2025-08-26 16:10:38,261 | INFO | pipeline_360.etl.pipeline | Transform iniciado
+2025-08-26 16:10:38,314 | INFO | pipeline_360.etl.pipeline | Transform concluído
+2025-08-26 16:10:38,315 | INFO | pipeline_360.etl.pipeline | Export iniciado
+2025-08-26 16:10:38,324 | INFO | pipeline_360.etl.pipeline | Export concluído
+2025-08-26 16:41:48,199 | INFO | pipeline_360.cli | hello chamado
+2025-08-26 16:41:48,306 | INFO | pipeline_360.etl.pipeline | Ingest iniciado
+2025-08-26 16:41:48,331 | INFO | pipeline_360.etl.pipeline | Ingest concluído
+2025-08-26 16:41:48,332 | INFO | pipeline_360.etl.pipeline | Transform iniciado
+2025-08-26 16:41:48,375 | INFO | pipeline_360.etl.pipeline | Transform concluído
+2025-08-26 16:41:48,375 | INFO | pipeline_360.etl.pipeline | Export iniciado
+2025-08-26 16:41:48,387 | INFO | pipeline_360.etl.pipeline | Export concluído
