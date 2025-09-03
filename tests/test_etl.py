@@ -1,6 +1,5 @@
-﻿import os
-from pathlib import Path
-import pandas as pd
+﻿import pandas as pd
+
 
 def test_pipeline_end_to_end(tmp_path, monkeypatch):
     # usar diretório de dados temporário
@@ -9,11 +8,12 @@ def test_pipeline_end_to_end(tmp_path, monkeypatch):
 
     # correr pipeline por etapas
     from pipeline_360.etl.pipeline import run_pipeline
+
     run_pipeline("all")
 
     raw = data_dir / "raw" / "exemplo.csv"
     proc = data_dir / "processed" / "exemplo_proc.csv"
-    out  = data_dir / "output" / "resultado.csv"
+    out = data_dir / "output" / "resultado.csv"
 
     assert raw.exists()
     assert proc.exists()

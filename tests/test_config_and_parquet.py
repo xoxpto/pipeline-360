@@ -1,8 +1,8 @@
-﻿from pathlib import Path
-from typer.testing import CliRunner
+﻿from typer.testing import CliRunner
 from pipeline_360.cli import app
 
 runner = CliRunner()
+
 
 def test_cli_with_config_envfile(tmp_path):
     env_alt = tmp_path / ".env.alt"

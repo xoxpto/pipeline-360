@@ -3,6 +3,7 @@ from ..logger import get_logger
 
 log = get_logger(__name__)
 
+
 def run_pipeline(stage: str = "all") -> None:
     if stage in ("ingest", "all"):
         log.info("Ingest iniciado")

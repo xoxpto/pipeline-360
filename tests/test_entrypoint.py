@@ -1,6 +1,7 @@
 ﻿import runpy
 import sys
 
+
 def test_entrypoint_module_help():
     sys.argv = ["pipeline_360", "--help"]
     try:

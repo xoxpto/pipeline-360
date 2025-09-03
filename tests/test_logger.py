@@ -1,5 +1,5 @@
-﻿from pathlib import Path
-from pipeline_360.logger import setup_logging, get_logger
+﻿from pipeline_360.logger import setup_logging, get_logger
+
 
 def test_logger_file_created(tmp_path, monkeypatch):
     log_dir = tmp_path / "logs"
