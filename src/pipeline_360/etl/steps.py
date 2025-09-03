@@ -1,60 +1,73 @@
-﻿import pandas as pd
-from ..config import DATA_DIR
+﻿from __future__ import annotations
+
+import os
+from pathlib import Path
+
+import pandas as pd
+
+from ..config import get_settings
 from ..logger import get_logger
 
 log = get_logger(__name__)
 
 
-def _ensure_dirs():
-    (DATA_DIR / "raw").mkdir(parents=True, exist_ok=True)
-    (DATA_DIR / "processed").mkdir(parents=True, exist_ok=True)
-    (DATA_DIR / "output").mkdir(parents=True, exist_ok=True)
+def _paths():
+    s = get_settings()
+    base = Path(os.environ.get("DATA_DIR", s.DATA_DIR))
+    raw = base / "raw"
+    proc = base / "processed"
+    out = base / "output"
+    raw.mkdir(parents=True, exist_ok=True)
+    proc.mkdir(parents=True, exist_ok=True)
+    out.mkdir(parents=True, exist_ok=True)
+    return raw, proc, out
 
 
-def ingest():
-    _ensure_dirs()
-    raw_csv = DATA_DIR / "raw" / "exemplo.csv"
-    if not raw_csv.exists():
+def _seed_raw_if_missing(raw_dir: Path) -> Path:
+    csv_in = raw_dir / "exemplo.csv"
+    if not csv_in.exists():
         df = pd.DataFrame(
             {
                 "id": [1, 2, 3, 4],
                 "categoria": ["A", "B", "A", "B"],
-                "valor": [10, 20, 5, 7],
-                "valor2": [1, 2, 3, 4],
+                "valor": [10, 20, 30, 40],
             }
         )
-        df.to_csv(raw_csv, index=False)
+        df.to_csv(csv_in, index=False)
+    return csv_in
+
+
+def ingest() -> Path:
+    raw, _, _ = _paths()
+    csv_in = _seed_raw_if_missing(raw)
     log.info("Ingest concluído")
+    return csv_in
 
 
-def transform():
-    _ensure_dirs()
-    raw_csv = DATA_DIR / "raw" / "exemplo.csv"
-    if not raw_csv.exists():
-        ingest()
-    df = pd.read_csv(raw_csv)
-
-    if "categoria" in df.columns and "valor" in df.columns:
-        dfp = (
-            df.groupby("categoria", as_index=False)["valor"]
-            .sum()
-            .rename(columns={"valor": "soma_valor"})
-        )
-    else:
-        # fallback (não esperado pelos testes, mas robusto)
-        dfp = df
-
-    proc_csv = DATA_DIR / "processed" / "exemplo_proc.csv"
-    dfp.to_csv(proc_csv, index=False)
-    log.info(f"Transform concluído: {proc_csv}")
+def transform() -> Path:
+    raw, proc, _ = _paths()
+    csv_in = _seed_raw_if_missing(raw)
+    df = pd.read_csv(csv_in)
+    # agrupamento pedido pelos testes
+    out_df = (
+        df.groupby("categoria", as_index=False)["valor"]
+        .sum()
+        .rename(columns={"valor": "soma_valor"})
+    )
+    csv_proc = proc / "exemplo_proc.csv"
+    out_df.to_csv(csv_proc, index=False)
+    log.info(f"Transform concluído: {csv_proc}")
+    return csv_proc
 
 
-def export():
-    _ensure_dirs()
-    proc_csv = DATA_DIR / "processed" / "exemplo_proc.csv"
-    if not proc_csv.exists():
-        transform()
-    df = pd.read_csv(proc_csv)
-    out_csv = DATA_DIR / "output" / "resultado.csv"
-    df.to_csv(out_csv, index=False)
-    log.info(f"Export concluído: {out_csv}")
+def export() -> Path:
+    _, _, out = _paths()
+    csv_proc = out.parent / "processed" / "exemplo_proc.csv"
+    if not csv_proc.exists():
+        # garantir transform
+        csv_proc = transform()
+    df = pd.read_csv(csv_proc)
+    csv_out = out / "resultado.csv"
+    df.to_csv(csv_out, index=False)
+    log.info(f"Export concluído: {csv_out}")
+    return csv_out
