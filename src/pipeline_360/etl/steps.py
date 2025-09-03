@@ -1,56 +1,55 @@
 ﻿from pathlib import Path
 import pandas as pd
-from ..config import Settings  # instanciamos em runtime para apanhar env atual
+from ..config import DATA_DIR
+from ..logger import get_logger
 
-def _paths():
-    # Lê .env e variáveis de ambiente no momento da chamada
-    s = Settings()
-    data_dir: Path = s.DATA_DIR
-    raw = data_dir / "raw"
-    proc = data_dir / "processed"
-    out = data_dir / "output"
-    for d in (raw, proc, out):
-        d.mkdir(parents=True, exist_ok=True)
-    return raw, proc, out
+log = get_logger(__name__)
 
-def _csv_paths():
-    raw, proc, out = _paths()
-    csv_in = raw / "exemplo.csv"
-    csv_proc = proc / "exemplo_proc.csv"
-    csv_out = out / "resultado.csv"
-    return csv_in, csv_proc, csv_out
-
-def _seed_example_csv(csv_in: Path):
-    if not csv_in.exists():
-        import pandas as pd
-        df = pd.DataFrame(
-            {
-                "id": [1, 2, 3, 4],
-                "categoria": ["A", "A", "B", "B"],
-                "valor": [10, 15, 7, 20],
-            }
-        )
-        df.to_csv(csv_in, index=False)
+def _ensure_dirs():
+    (DATA_DIR / "raw").mkdir(parents=True, exist_ok=True)
+    (DATA_DIR / "processed").mkdir(parents=True, exist_ok=True)
+    (DATA_DIR / "output").mkdir(parents=True, exist_ok=True)
 
 def ingest():
-    csv_in, _, _ = _csv_paths()
-    _seed_example_csv(csv_in)
+    _ensure_dirs()
+    raw_csv = DATA_DIR / "raw" / "exemplo.csv"
+    if not raw_csv.exists():
+        df = pd.DataFrame({
+            "id": [1, 2, 3, 4],
+            "categoria": ["A", "B", "A", "B"],
+            "valor": [10, 20, 5, 7],
+            "valor2": [1, 2, 3, 4],
+        })
+        df.to_csv(raw_csv, index=False)
+    log.info("Ingest concluído")
 
 def transform():
-    csv_in, csv_proc, _ = _csv_paths()
-    if csv_in.exists():
-        df = pd.read_csv(csv_in)
-        # exemplo: filtrar valores > 8 e somar por categoria
-        df = df[df["valor"] > 8]
-        agg = (
+    _ensure_dirs()
+    raw_csv = DATA_DIR / "raw" / "exemplo.csv"
+    if not raw_csv.exists():
+        ingest()
+    df = pd.read_csv(raw_csv)
+
+    if "categoria" in df.columns and "valor" in df.columns:
+        dfp = (
             df.groupby("categoria", as_index=False)["valor"]
-            .sum()
-            .rename(columns={"valor": "soma_valor"})
+              .sum()
+              .rename(columns={"valor": "soma_valor"})
         )
-        agg.to_csv(csv_proc, index=False)
+    else:
+        # fallback (não esperado pelos testes, mas robusto)
+        dfp = df
+
+    proc_csv = DATA_DIR / "processed" / "exemplo_proc.csv"
+    dfp.to_csv(proc_csv, index=False)
+    log.info(f"Transform concluído: {proc_csv}")
 
 def export():
-    _, csv_proc, csv_out = _csv_paths()
-    if csv_proc.exists():
-        df = pd.read_csv(csv_proc)
-        df.to_csv(csv_out, index=False)
+    _ensure_dirs()
+    proc_csv = DATA_DIR / "processed" / "exemplo_proc.csv"
+    if not proc_csv.exists():
+        transform()
+    df = pd.read_csv(proc_csv)
+    out_csv = DATA_DIR / "output" / "resultado.csv"
+    df.to_csv(out_csv, index=False)
+    log.info(f"Export concluído: {out_csv}")

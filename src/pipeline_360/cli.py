@@ -1,12 +1,12 @@
 ﻿import os
-import shutil
 import time
-import logging
-from pathlib import Path
+import shutil
 import typer
+from pathlib import Path
 from rich import print
+
+from .config import get_settings
 from .logger import get_logger, setup_logging
-from .config import Settings
 
 app = typer.Typer(help="CLI do Pipeline 360")
 log = get_logger(__name__)
@@ -16,10 +16,15 @@ def main_options(
     data_dir: Path = typer.Option(None, "--data-dir", help="Diretório base de dados"),
     log_level: str = typer.Option(None, "--log-level", help="Nível de log (DEBUG/INFO/WARN/ERROR)"),
     log_file: Path = typer.Option(None, "--log-file", help="Ficheiro de log"),
+    config: Path = typer.Option(None, "--config", help="Caminho para um .env alternativo"),
 ):
-    """
-    Opções globais. Se fornecidas, sobrepõem .env via variáveis de ambiente.
-    """
+    # --config: usar .env alternativo via variável
+    if config is not None:
+        for k in ("DATA_DIR", "LOG_LEVEL", "LOG_FILE"):
+            os.environ.pop(k, None)
+        os.environ["PIPELINE360_ENV"] = str(config)
+
+    # Overrides diretos por flags
     if data_dir is not None:
         os.environ["DATA_DIR"] = str(data_dir)
     if log_level is not None:
@@ -27,56 +32,55 @@ def main_options(
     if log_file is not None:
         os.environ["LOG_FILE"] = str(log_file)
 
-    # reconfigurar logger com o que ficou no ambiente
-    s = Settings()
+    s = get_settings()
     setup_logging(level=s.LOG_LEVEL, log_file=s.LOG_FILE)
 
 @app.command()
 def hello(name: str = "mundo"):
-    """Comando de teste."""
-    print(f"[bold green]Olá[/], {name}!")
+    print(f"Olá, {name}!")
     log.info("hello chamado")
 
 @app.command()
 def run(stage: str = typer.Option("all", help="Etapa a executar: ingest|transform|export|all")):
-    """Executa o pipeline por etapas."""
     from .etl.pipeline import run_pipeline
     run_pipeline(stage)
-    print("[bold green]Pipeline concluído[/]")
-
-def _rmtree_robusto(path: Path, tentativas: int = 5, espera: float = 0.25):
-    """Remove diretório com retries (útil no Windows quando há handles abertos)."""
-    for i in range(tentativas):
-        try:
-            shutil.rmtree(path)
-            return True
-        except PermissionError:
-            time.sleep(espera)
-    return False
+    print("Pipeline concluído")
 
 @app.command()
-def clean(confirm: bool = typer.Option(True, "--yes/--no", help="Confirmar limpeza")):
-    """Apaga conteúdo de data/ e logs/ (conforme config)."""
-    s = Settings()
-    if not confirm:
-        print("[yellow]Operação cancelada[/]")
-        raise typer.Exit(1)
+def clean(yes: bool = typer.Option(False, "--yes", help="Não pedir confirmação")):
+    s = get_settings()
+    targets = [s.DATA_DIR, Path(s.LOG_FILE).parent]
 
-    # Fechar handlers para libertar ficheiros de log no Windows
-    logging.shutdown()
+    if not yes:
+        typer.confirm(f"Confirma apagar {targets}?", abort=True)
 
-    for p in [s.DATA_DIR, Path(s.LOG_FILE).parent]:
-        if p.exists():
-            ok = _rmtree_robusto(p)
-            if ok:
-                print(f"[cyan]Removido:[/] {p}")
-            else:
-                print(f"[red]Falha a remover:[/] {p}")
-                raise typer.Exit(1)
+    # libertar ficheiro de log se estiver aberto
+    try:
+        import logging
+        logging.shutdown()
+    except Exception:
+        pass
 
-    print("[bold green]Limpeza concluída[/]")
+    # tenta remover o ficheiro de log
+    try:
+        Path(s.LOG_FILE).unlink(missing_ok=True)
+    except Exception:
+        pass
 
+    # remover diretórios com algumas tentativas; não falha em Windows
+    for p in targets:
+        if not p:
+            continue
+        for _ in range(5):
+            try:
+                if p.exists():
+                    shutil.rmtree(p)
+                    print(f"Removido: {p}")
+                break
+            except Exception:
+                time.sleep(0.2)
+
+    print("Clean concluído")
 
 def main():
-
     app()

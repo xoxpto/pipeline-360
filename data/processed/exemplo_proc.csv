@@ -1,3 +1,5 @@
-categoria,soma_valor
-A,25
-B,20
+id,categoria,valor,valor2
+1,A,10,20
+2,A,15,30
+3,B,7,14
+4,B,20,40
