@@ -37,37 +37,56 @@ def _seed_raw_if_missing(raw_dir: Path) -> Path:
     return csv_in
 
 
-def ingest() -> Path:
-    raw, _, _ = _paths()
-    csv_in = _seed_raw_if_missing(raw)
+def ingest() -> None:
+    s = get_settings()
+    raw_dir = s.DATA_DIR / "raw"
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    csv_raw = raw_dir / "exemplo.csv"
+    if not csv_raw.exists():
+        # seed coerente com testes: após filtro valor>8 -> A=(10+15)=25, B=20
+        df = pd.DataFrame(
+            {
+                "id": [1, 2, 3, 4],
+                "valor": [5, 10, 20, 15],
+                "categoria": ["A", "A", "B", "A"],
+            }
+        )
+        df.to_csv(csv_raw, index=False)
     log.info("Ingest concluído")
-    return csv_in
 
 
-def transform() -> Path:
-    raw, proc, _ = _paths()
-    csv_in = _seed_raw_if_missing(raw)
-    df = pd.read_csv(csv_in)
-    # agrupamento pedido pelos testes
-    out_df = (
+def transform() -> None:
+    s = get_settings()
+    raw = s.DATA_DIR / "raw" / "exemplo.csv"
+    proc = s.DATA_DIR / "processed" / "exemplo_proc.csv"
+    proc.parent.mkdir(parents=True, exist_ok=True)
+
+    if not raw.exists():
+        ingest()  # garante o seed
+
+    df = pd.read_csv(raw)
+    df = df[df["valor"] > 8].copy()
+
+    out = (
         df.groupby("categoria", as_index=False)["valor"]
         .sum()
         .rename(columns={"valor": "soma_valor"})
     )
-    csv_proc = proc / "exemplo_proc.csv"
-    out_df.to_csv(csv_proc, index=False)
-    log.info(f"Transform concluído: {csv_proc}")
-    return csv_proc
+    out.to_csv(proc, index=False)
+    log.info(f"Transform concluído: {proc}")
 
 
-def export() -> Path:
-    _, _, out = _paths()
-    csv_proc = out.parent / "processed" / "exemplo_proc.csv"
+def export() -> None:
+    s = get_settings()
+    csv_proc = s.DATA_DIR / "processed" / "exemplo_proc.csv"
+    csv_out = s.DATA_DIR / "output" / "resultado.csv"
+    csv_out.parent.mkdir(parents=True, exist_ok=True)
+
+    # no-op se ainda não existe o processado
     if not csv_proc.exists():
-        # garantir transform
-        csv_proc = transform()
+        log.info("Export: nada a fazer (processed inexistente)")
+        return
+
     df = pd.read_csv(csv_proc)
-    csv_out = out / "resultado.csv"
     df.to_csv(csv_out, index=False)
     log.info(f"Export concluído: {csv_out}")
-    return csv_out

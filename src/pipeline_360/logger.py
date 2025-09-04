@@ -1,50 +1,72 @@
 ﻿from __future__ import annotations
 
 import logging
-from logging import Handler
 from pathlib import Path
-from typing import Optional
+from rich.logging import RichHandler
 
 
-def setup_logging(level: str = "INFO", log_file: Optional[Path] = None) -> None:
+def _has_handler(logger: logging.Logger, handler_type: type) -> bool:
+    return any(isinstance(h, handler_type) for h in logger.handlers)
+
+
+def setup_logging(
+    level: str = "INFO", log_file: str | Path | None = "logs/pipeline.log"
+) -> None:
     """
-    Configura logging no *root*:
-      - Sempre consola (StreamHandler)
-      - Tentar ficheiro, mas se falhar, não rebenta (imprime aviso e segue só com consola)
-    Isto garante que caplog (pytest) apanha as mensagens.
+    Configura logging com Rich na consola e (opcionalmente) ficheiro.
+    - Se log_file for None, não cria FileHandler (consola apenas).
+    - Remove e fecha FileHandlers antigos para evitar handlers “pendurados” entre testes.
+    - Valida caminho do ficheiro; em erro faz fallback para consola.
     """
     root = logging.getLogger()
-    root.handlers.clear()
-    root.setLevel(getattr(logging, level.upper(), logging.INFO))
+    root.setLevel(level)
 
-    # consola
-    sh = logging.StreamHandler()
-    sh.setFormatter(
-        logging.Formatter("%(asctime)s | %(levelname)s | %(name)s | %(message)s")
-    )
-    root.addHandler(sh)
+    # consola: garantir um único RichHandler
+    if not _has_handler(root, RichHandler):
+        console = RichHandler(rich_tracebacks=False, markup=True)
+        console.setLevel(level)
+        console.setFormatter(logging.Formatter("%(message)s"))
+        root.addHandler(console)
 
-    # ficheiro (opcional)
-    if log_file:
+    # limpar file handlers antigos
+    old_file_handlers = [h for h in root.handlers if isinstance(h, logging.FileHandler)]
+    for h in old_file_handlers:
         try:
-            Path(log_file).parent.mkdir(parents=True, exist_ok=True)
-            fh: Handler = logging.FileHandler(log_file, encoding="utf-8")
-            fh.setFormatter(
-                logging.Formatter(
-                    "%(asctime)s | %(levelname)s | %(name)s | %(message)s"
-                )
-            )
-            root.addHandler(fh)
+            h.close()
+        finally:
+            root.removeHandler(h)
+
+    # sem ficheiro? consola only
+    if not log_file:
+        return
+
+    # tentar adicionar file handler de forma segura
+    try:
+        lp = Path(log_file)
+        lp.parent.mkdir(parents=True, exist_ok=True)
+
+        # valida (abre/fecha) – se falhar, não adiciona
+        try:
+            with lp.open("a", encoding="utf-8"):
+                pass
         except Exception as e:
             print(
                 f"[logger] aviso: não consegui abrir LOG_FILE ({e}); a registar só na consola."
             )
+            return
 
-    # Não adicionar handlers em loggers filhos; deixar propagar
-    # (por omissão propagate=True -> caplog apanha)
-    # Nada a fazer aqui, apenas não configurar handlers específicos por logger.
+        fh = logging.FileHandler(lp, mode="a", encoding="utf-8", delay=True)
+        fh.setLevel(level)
+        fh.setFormatter(
+            logging.Formatter("%(asctime)s | %(levelname)s | %(name)s | %(message)s")
+        )
+        root.addHandler(fh)
+
+    except Exception as e:
+        print(
+            f"[logger] aviso: não consegui abrir LOG_FILE ({e}); a registar só na consola."
+        )
 
 
-def get_logger(name: str) -> logging.Logger:
-    # herda dos handlers do root (configurados em setup_logging)
-    return logging.getLogger(name)
+def get_logger(name: str | None = None) -> logging.Logger:
+    return logging.getLogger(name if name else "")
