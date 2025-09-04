@@ -2,17 +2,23 @@ name: CI
 
 on:
   push:
+    branches: [ "main" ]
   pull_request:
 
 jobs:
   test:
-    name: Test on ${{ matrix.os }} / Py ${{ matrix.python-version }}
+    name: Test (${{ matrix.os }}, py${{ matrix.python-version }})
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
         python-version: ["3.11"]
+
+    env:
+      PRE_COMMIT_HOME: ${{ runner.temp }}/pre-commit
+      PIP_DISABLE_PIP_VERSION_CHECK: "1"
+      PYTHONUTF8: "1"
 
     steps:
       - name: Checkout
@@ -24,19 +30,17 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: "pip"
 
-      - name: Install project and test deps
+      - name: Install deps
         run: |
           python -m pip install --upgrade pip
           pip install -e .
-          pip install pytest pytest-cov
+          pip install pre-commit pytest pytest-cov
 
-      - name: Run tests (with coverage)
-        env:
-          DATA_DIR: data
-          LOG_LEVEL: INFO
-          LOG_FILE: logs/pipeline.log
-        run: |
-          pytest -q --cov=pipeline_360 --cov-report=term-missing --cov-report=xml
+      - name: Pre-commit (ruff/black)
+        run: pre-commit run --all-files
+
+      - name: Pytest with coverage
+        run: pytest -q --cov=pipeline_360 --cov-report=term-missing --cov-report=xml
 
       - name: Upload coverage.xml
         if: always()
@@ -44,12 +48,3 @@ jobs:
         with:
           name: coverage-${{ matrix.os }}-py${{ matrix.python-version }}
           path: coverage.xml
-
-      - name: Upload logs (if any)
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: logs-${{ matrix.os }}-py${{ matrix.python-version }}
-          path: logs
-          if-no-files-found: ignore
-
