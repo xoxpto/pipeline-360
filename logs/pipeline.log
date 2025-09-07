@@ -429,3 +429,86 @@
 2025-09-04 12:23:39,535 | INFO | pipeline_360.etl.pipeline | Export iniciado
 2025-09-04 12:23:39,547 | INFO | pipeline_360.etl.steps | Export concluído: C:\Users\André\AppData\Local\Temp\pytest-of-André\pytest-60\test_cli_run_individual_stages0\data\output\resultado.csv
 2025-09-04 12:23:39,550 | INFO | pipeline_360.etl.pipeline | Export concluído
+2025-09-05 10:43:35,879 | INFO | pipeline_360.cli | hello chamado
+2025-09-05 10:43:44,521 | INFO | pipeline_360.cli | Run stage=all
+2025-09-05 10:43:44,526 | INFO | pipeline_360.etl.pipeline | Ingest iniciado
+2025-09-05 10:43:44,527 | INFO | pipeline_360.etl.steps | Ingest concluído
+2025-09-05 10:43:44,528 | INFO | pipeline_360.etl.pipeline | Ingest concluído
+2025-09-05 10:43:44,530 | INFO | pipeline_360.etl.pipeline | Transform iniciado
+2025-09-05 10:43:44,575 | INFO | pipeline_360.etl.steps | Transform concluído: C:\Users\ANDR~1\AppData\Local\Temp\pip360-check\data\processed\exemplo_proc.csv
+2025-09-05 10:43:44,577 | INFO | pipeline_360.etl.pipeline | Transform concluído
+2025-09-05 10:43:44,578 | INFO | pipeline_360.etl.pipeline | Export iniciado
+2025-09-05 10:43:44,589 | INFO | pipeline_360.etl.steps | Export concluído: C:\Users\ANDR~1\AppData\Local\Temp\pip360-check\data\output\resultado.csv
+2025-09-05 10:43:44,590 | INFO | pipeline_360.etl.pipeline | Export concluído
+2025-09-05 10:44:11,637 | INFO | pipeline_360.cli | hello chamado
+2025-09-05 10:44:11,702 | INFO | pipeline_360.cli | Run stage=ingest
+2025-09-05 10:44:11,704 | INFO | pipeline_360.etl.pipeline | Ingest iniciado
+2025-09-05 10:44:11,714 | INFO | pipeline_360.etl.steps | Ingest concluído
+2025-09-05 10:44:11,716 | INFO | pipeline_360.etl.pipeline | Ingest concluído
+2025-09-05 10:44:11,722 | INFO | pipeline_360.cli | Run stage=transform
+2025-09-05 10:44:11,725 | INFO | pipeline_360.etl.pipeline | Transform iniciado
+2025-09-05 10:44:11,742 | INFO | pipeline_360.etl.steps | Transform concluído: C:\Users\André\AppData\Local\Temp\pytest-of-André\pytest-61\test_cli_run_individual_stages0\data\processed\exemplo_proc.csv
+2025-09-05 10:44:11,746 | INFO | pipeline_360.etl.pipeline | Transform concluído
+2025-09-05 10:44:11,752 | INFO | pipeline_360.cli | Run stage=export
+2025-09-05 10:44:11,755 | INFO | pipeline_360.etl.pipeline | Export iniciado
+2025-09-05 10:44:11,761 | INFO | pipeline_360.etl.steps | Export concluído: C:\Users\André\AppData\Local\Temp\pytest-of-André\pytest-61\test_cli_run_individual_stages0\data\output\resultado.csv
+2025-09-05 10:44:11,764 | INFO | pipeline_360.etl.pipeline | Export concluído
+2025-09-07 17:06:44,891 | INFO | pipeline_360.cli | hello chamado
+2025-09-07 17:06:44,965 | INFO | pipeline_360.cli | Run stage=ingest
+2025-09-07 17:06:44,968 | INFO | pipeline_360.etl.pipeline | Ingest iniciado
+2025-09-07 17:06:44,994 | INFO | pipeline_360.etl.steps | Ingest concluído
+2025-09-07 17:06:44,996 | INFO | pipeline_360.etl.pipeline | Ingest concluído
+2025-09-07 17:06:45,002 | INFO | pipeline_360.cli | Run stage=transform
+2025-09-07 17:06:45,005 | INFO | pipeline_360.etl.pipeline | Transform iniciado
+2025-09-07 17:06:45,022 | INFO | pipeline_360.etl.steps | Transform concluído: C:\Users\André\AppData\Local\Temp\pytest-of-André\pytest-62\test_cli_run_individual_stages0\data\processed\exemplo_proc.csv
+2025-09-07 17:06:45,026 | INFO | pipeline_360.etl.pipeline | Transform concluído
+2025-09-07 17:06:45,031 | INFO | pipeline_360.cli | Run stage=export
+2025-09-07 17:06:45,034 | INFO | pipeline_360.etl.pipeline | Export iniciado
+2025-09-07 17:06:45,047 | INFO | pipeline_360.etl.steps | Export concluído: C:\Users\André\AppData\Local\Temp\pytest-of-André\pytest-62\test_cli_run_individual_stages0\data\output\resultado.csv
+2025-09-07 17:06:45,050 | INFO | pipeline_360.etl.pipeline | Export concluído
+2025-09-07 17:47:43,335 | INFO | pipeline_360.cli | hello chamado
+2025-09-07 17:47:43,466 | INFO | pipeline_360.cli | Run stage=ingest
+2025-09-07 17:47:43,471 | INFO | pipeline_360.etl.pipeline | Ingest iniciado
+2025-09-07 17:47:43,532 | INFO | pipeline_360.etl.steps | Ingest concluído
+2025-09-07 17:47:43,535 | INFO | pipeline_360.etl.pipeline | Ingest concluído
+2025-09-07 17:47:43,545 | INFO | pipeline_360.cli | Run stage=transform
+2025-09-07 17:47:43,548 | INFO | pipeline_360.etl.pipeline | Ingest iniciado
+2025-09-07 17:47:43,552 | INFO | pipeline_360.etl.pipeline | Transform iniciado
+2025-09-07 17:47:43,598 | INFO | pipeline_360.etl.steps | Transform concluído: C:\Users\André\AppData\Local\Temp\pytest-of-André\pytest-63\test_cli_run_individual_stages0\data\processed\exemplo_proc.csv
+2025-09-07 17:47:43,603 | INFO | pipeline_360.etl.pipeline | Transform concluído
+2025-09-07 17:47:43,612 | INFO | pipeline_360.cli | Run stage=export
+2025-09-07 17:47:43,615 | INFO | pipeline_360.etl.pipeline | Ingest iniciado
+2025-09-07 17:47:43,617 | INFO | pipeline_360.etl.pipeline | Export iniciado
+2025-09-07 17:47:43,636 | INFO | pipeline_360.etl.steps | Export concluído: C:\Users\André\AppData\Local\Temp\pytest-of-André\pytest-63\test_cli_run_individual_stages0\data\output\resultado.csv
+2025-09-07 17:47:43,639 | INFO | pipeline_360.etl.pipeline | Export concluído
+2025-09-07 20:13:49,212 | INFO | pipeline_360.cli | hello chamado
+2025-09-07 20:14:00,630 | INFO | pipeline_360.cli | hello chamado
+2025-09-07 20:14:00,729 | INFO | pipeline_360.cli | Run stage=ingest
+2025-09-07 20:14:00,731 | INFO | pipeline_360.etl.pipeline | Ingest iniciado
+2025-09-07 20:14:00,789 | INFO | pipeline_360.etl.steps | Ingest concluído
+2025-09-07 20:14:00,792 | INFO | pipeline_360.etl.pipeline | Ingest concluído
+2025-09-07 20:14:00,800 | INFO | pipeline_360.cli | Run stage=transform
+2025-09-07 20:14:00,803 | INFO | pipeline_360.etl.pipeline | Ingest iniciado
+2025-09-07 20:14:00,805 | INFO | pipeline_360.etl.pipeline | Transform iniciado
+2025-09-07 20:14:00,855 | INFO | pipeline_360.etl.steps | Transform concluído: C:\Users\André\AppData\Local\Temp\pytest-of-André\pytest-64\test_cli_run_individual_stages0\data\processed\exemplo_proc.csv
+2025-09-07 20:14:00,859 | INFO | pipeline_360.etl.pipeline | Transform concluído
+2025-09-07 20:14:00,867 | INFO | pipeline_360.cli | Run stage=export
+2025-09-07 20:14:00,870 | INFO | pipeline_360.etl.pipeline | Ingest iniciado
+2025-09-07 20:14:00,873 | INFO | pipeline_360.etl.pipeline | Export iniciado
+2025-09-07 20:14:00,890 | INFO | pipeline_360.etl.steps | Export concluído: C:\Users\André\AppData\Local\Temp\pytest-of-André\pytest-64\test_cli_run_individual_stages0\data\output\resultado.csv
+2025-09-07 20:14:00,895 | INFO | pipeline_360.etl.pipeline | Export concluído
+2025-09-07 20:50:53,951 | INFO | pipeline_360.cli | hello chamado
+2025-09-07 20:50:54,077 | INFO | pipeline_360.cli | Run stage=ingest
+2025-09-07 20:50:54,080 | INFO | pipeline_360.etl.pipeline | Ingest iniciado
+2025-09-07 20:50:54,120 | INFO | pipeline_360.etl.steps | Ingest concluído
+2025-09-07 20:50:54,122 | INFO | pipeline_360.etl.pipeline | Ingest concluído
+2025-09-07 20:50:54,130 | INFO | pipeline_360.cli | Run stage=transform
+2025-09-07 20:50:54,133 | INFO | pipeline_360.etl.pipeline | Ingest iniciado
+2025-09-07 20:50:54,135 | INFO | pipeline_360.etl.pipeline | Transform iniciado
+2025-09-07 20:50:54,171 | INFO | pipeline_360.etl.steps | Transform concluído: C:\Users\André\AppData\Local\Temp\pytest-of-André\pytest-65\test_cli_run_individual_stages0\data\processed\exemplo_proc.csv
+2025-09-07 20:50:54,174 | INFO | pipeline_360.etl.pipeline | Transform concluído
+2025-09-07 20:50:54,183 | INFO | pipeline_360.cli | Run stage=export
+2025-09-07 20:50:54,187 | INFO | pipeline_360.etl.pipeline | Ingest iniciado
+2025-09-07 20:50:54,190 | INFO | pipeline_360.etl.pipeline | Export iniciado
+2025-09-07 20:50:54,213 | INFO | pipeline_360.etl.steps | Export concluído: C:\Users\André\AppData\Local\Temp\pytest-of-André\pytest-65\test_cli_run_individual_stages0\data\output\resultado.csv
+2025-09-07 20:50:54,217 | INFO | pipeline_360.etl.pipeline | Export concluído

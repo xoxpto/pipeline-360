@@ -2,24 +2,12 @@ name: CI
 
 on:
   push:
-    branches: [ "main" ]
   pull_request:
 
 jobs:
-  test:
-    name: Test (${{ matrix.os }}, py${{ matrix.python-version }})
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-        python-version: ["3.11"]
-
-    env:
-      PRE_COMMIT_HOME: ${{ runner.temp }}/pre-commit
-      PIP_DISABLE_PIP_VERSION_CHECK: "1"
-      PYTHONUTF8: "1"
-
+  lint:
+    name: Lint (ruff + black --check)
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -27,24 +15,59 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
-          cache: "pip"
+          python-version: '3.11'
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}
+          restore-keys: ${{ runner.os }}-pip-
+
+      - name: Install linters
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff==0.6.9 black==24.10.0
+
+      - name: Run ruff
+        run: ruff . --output-format=github
+
+      - name: Run black --check
+        run: black . --check
+
+  test:
+    name: Test (pytest + coverage)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}
+          restore-keys: ${{ runner.os }}-pip-
 
       - name: Install deps
         run: |
           python -m pip install --upgrade pip
-          pip install -e .
-          pip install pre-commit pytest pytest-cov
+          # tenta instalar extras de dev; se não existirem, instala base + pytest
+          pip install -e ".[dev]" || true
+          pip install -e . pytest pytest-cov
 
-      - name: Pre-commit (ruff/black)
-        run: pre-commit run --all-files
-
-      - name: Pytest with coverage
-        run: pytest -q --cov=pipeline_360 --cov-report=term-missing --cov-report=xml
+      - name: Run tests
+        run: |
+          pytest -q --maxfail=1 --disable-warnings \
+            --cov=pipeline_360 --cov-report=xml --cov-report=term
 
       - name: Upload coverage.xml
-        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-${{ matrix.os }}-py${{ matrix.python-version }}
+          name: coverage-xml
           path: coverage.xml

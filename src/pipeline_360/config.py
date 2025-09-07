@@ -2,62 +2,61 @@
 
 import os
 from pathlib import Path
-from dataclasses import dataclass
+from pydantic import BaseModel
 
 
-@dataclass
-class Settings:
+class Settings(BaseModel):
     DATA_DIR: Path = Path("data")
     LOG_LEVEL: str = "INFO"
     LOG_FILE: Path = Path("logs/pipeline.log")
 
 
-def _parse_line(line: str) -> tuple[str, str] | None:
-    line = line.strip()
-    if not line or line.startswith("#") or "=" not in line:
+def _strip_quotes(s: str | os.PathLike | None) -> str | None:
+    if s is None:
         return None
-    k, v = line.split("=", 1)
-    k = k.strip()
-    v = v.strip().strip('"').strip("'")  # tirar aspas se existirem
-    return k, v
+    s = str(s)
+    if len(s) >= 2 and s[0] == s[-1] and s[0] in {"'", '"'}:
+        return s[1:-1]
+    return s
 
 
 def _load_envfile(path: Path) -> dict[str, str]:
-    """
-    Lê um .env simples. Se `path` não existir ou não for ficheiro, devolve {}.
-    Nunca tenta ler diretórios (evita PermissionError em Path('.')).
-    """
-    if not path or not isinstance(path, Path) or not path.is_file():
-        return {}
-
+    """Carrega um ficheiro .env simples (KEY=VALUE), ignorando comentários e linhas vazias."""
     out: dict[str, str] = {}
-    for line in path.read_text(encoding="utf-8").splitlines():
-        kv = _parse_line(line)
-        if kv:
-            k, v = kv
-            out[k] = v
+    try:
+        if not path or not path.is_file():
+            return out
+        for line in path.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            k, v = line.split("=", 1)
+            out[k.strip()] = _strip_quotes(v.strip()) or ""
+    except Exception:
+        # silencioso: sem bloquear se não conseguir ler
+        return {}
     return out
 
 
 def get_settings() -> Settings:
     """
-    Recolhe as definições por esta ordem:
-    1) PIPELINE360_ENV -> caminho para .env (opcional)
-    2) Variáveis de ambiente (DATA_DIR, LOG_FILE, LOG_LEVEL)
-    3) Defaults
+    Precedência:
+      1) Variáveis de ambiente (inclui overrides via CLI/temp_env/pytest)
+      2) Ficheiro apontado por PIPELINE360_ENV (se existir)
+      3) Defaults
     """
-    # 1) carregar de ficheiro, se indicado
     envfile = os.environ.get("PIPELINE360_ENV")
     from_file = _load_envfile(Path(envfile)) if envfile else {}
 
-    # 2) sobrepor com variáveis de ambiente diretas, se existirem
-    data_dir = os.environ.get("DATA_DIR", from_file.get("DATA_DIR", "data"))
-    log_level = os.environ.get("LOG_LEVEL", from_file.get("LOG_LEVEL", "INFO"))
-    log_file = os.environ.get(
-        "LOG_FILE", from_file.get("LOG_FILE", "logs/pipeline.log")
-    )
+    def pick(key: str, default: str) -> str:
+        v_env = os.environ.get(key)
+        if v_env is not None and v_env != "":
+            return _strip_quotes(v_env)  # ENV vence
+        if key in from_file and from_file[key] not in (None, ""):
+            return from_file[key]  # depois .env
+        return default  # fallback
 
-    # normalizar Paths
-    return Settings(
-        DATA_DIR=Path(data_dir), LOG_LEVEL=log_level, LOG_FILE=Path(log_file)
-    )
+    data_dir = Path(pick("DATA_DIR", "data"))
+    log_level = pick("LOG_LEVEL", "INFO")
+    log_file = Path(pick("LOG_FILE", "logs/pipeline.log"))
+    return Settings(DATA_DIR=data_dir, LOG_LEVEL=log_level, LOG_FILE=log_file)
