@@ -1,0 +1,9 @@
+# Normaliza todos os ficheiros de texto
+* text=auto
+
+# Força LF nos ficheiros críticos (código, configs, docs)
+*.py    text eol=lf
+*.yml   text eol=lf
+*.yaml  text eol=lf
+*.toml  text eol=lf
+*.md    text eol=lf
