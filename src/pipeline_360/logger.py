@@ -17,7 +17,9 @@ def _ensure_parent(path: Path) -> None:
         pass
 
 
-def setup_logging(level: str = "INFO", log_file: str | Path = "logs/pipeline.log") -> None:
+def setup_logging(
+    level: str = "INFO", log_file: str | Path = "logs/pipeline.log"
+) -> None:
     """
     Configura logging:
       - Consola com Rich (se disponível)
@@ -37,16 +39,24 @@ def setup_logging(level: str = "INFO", log_file: str | Path = "logs/pipeline.log
 
     # Garantir um único handler de consola
     has_console = any(
-        (isinstance(h, RichHandler) if RichHandler else isinstance(h, logging.StreamHandler))
+        (
+            isinstance(h, RichHandler)
+            if RichHandler
+            else isinstance(h, logging.StreamHandler)
+        )
         for h in root.handlers
     )
     if not has_console:
         if RichHandler:
-            ch = RichHandler(rich_tracebacks=False, show_time=True, show_level=True, show_path=False)
+            ch = RichHandler(
+                rich_tracebacks=False, show_time=True, show_level=True, show_path=False
+            )
         else:  # pragma: no cover
             ch = logging.StreamHandler()
         ch.setLevel(getattr(logging, level.upper(), logging.INFO))
-        ch.setFormatter(logging.Formatter("%(asctime)s | %(levelname)s | %(name)s | %(message)s"))
+        ch.setFormatter(
+            logging.Formatter("%(asctime)s | %(levelname)s | %(name)s | %(message)s")
+        )
         root.addHandler(ch)
 
     # Tentar ficheiro
@@ -55,10 +65,14 @@ def setup_logging(level: str = "INFO", log_file: str | Path = "logs/pipeline.log
         _ensure_parent(lf)
         fh = logging.FileHandler(lf, mode="a", encoding="utf-8")
         fh.setLevel(getattr(logging, level.upper(), logging.INFO))
-        fh.setFormatter(logging.Formatter("%(asctime)s | %(levelname)s | %(name)s | %(message)s"))
+        fh.setFormatter(
+            logging.Formatter("%(asctime)s | %(levelname)s | %(name)s | %(message)s")
+        )
         root.addHandler(fh)
     except Exception as e:  # falha → consola apenas
-        print(f"[logger] aviso: não consegui abrir LOG_FILE ({e}); a registar só na consola.")
+        print(
+            f"[logger] aviso: não consegui abrir LOG_FILE ({e}); a registar só na consola."
+        )
 
 
 def get_logger(name: Optional[str] = None) -> logging.Logger:

@@ -57,10 +57,18 @@ def masked_env(unset_keys: list[str]) -> Iterator[None]:
 @app.callback()
 def main(
     ctx: typer.Context,
-    config: Optional[Path] = typer.Option(None, "--config", help="Ficheiro .env alternativo"),
-    data_dir: Optional[Path] = typer.Option(None, "--data-dir", help="Override do DATA_DIR"),
-    log_level: Optional[str] = typer.Option(None, "--log-level", help="Override do LOG_LEVEL"),
-    log_file: Optional[Path] = typer.Option(None, "--log-file", help="Override do LOG_FILE"),
+    config: Optional[Path] = typer.Option(
+        None, "--config", help="Ficheiro .env alternativo"
+    ),
+    data_dir: Optional[Path] = typer.Option(
+        None, "--data-dir", help="Override do DATA_DIR"
+    ),
+    log_level: Optional[str] = typer.Option(
+        None, "--log-level", help="Override do LOG_LEVEL"
+    ),
+    log_file: Optional[Path] = typer.Option(
+        None, "--log-file", help="Override do LOG_FILE"
+    ),
 ):
     # Se veio --config, define já para get_settings() ver
     has_config = config is not None

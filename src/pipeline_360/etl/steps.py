@@ -1,6 +1,5 @@
 ﻿from __future__ import annotations
 
-import logging
 from pathlib import Path
 
 import pandas as pd
@@ -49,7 +48,11 @@ def transform() -> Path:
 
     df = pd.read_csv(raw_csv)
     df = df[df["valor"] > 8]
-    out = df.groupby("categoria", as_index=False)["valor"].sum().rename(columns={"valor": "soma_valor"})
+    out = (
+        df.groupby("categoria", as_index=False)["valor"]
+        .sum()
+        .rename(columns={"valor": "soma_valor"})
+    )
 
     proc_csv = s.DATA_DIR / "processed" / "exemplo_proc.csv"
     out.to_csv(proc_csv, index=False)
